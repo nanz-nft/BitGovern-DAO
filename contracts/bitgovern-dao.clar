@@ -58,3 +58,36 @@
         last-reward-block: uint
     }
 )
+
+(define-map proposals
+    uint
+    {
+        proposer: principal,
+        description: (string-ascii 256),
+        amount: uint,
+        target: principal,
+        expires-at: uint,
+        executed: bool,
+        yes-votes: uint,
+        no-votes: uint
+    }
+)
+
+(define-map votes {proposal-id: uint, voter: principal} bool)
+
+;; Private Functions
+(define-private (is-contract-owner)
+    (is-eq tx-sender contract-owner)
+)
+
+(define-private (check-initialized)
+    (ok (asserts! (var-get initialized) err-not-initialized))
+)
+
+(define-private (validate-proposal-id (proposal-id uint))
+    (ok (asserts! (<= proposal-id (var-get proposal-count)) err-invalid-proposal-id))
+)
+
+(define-private (calculate-voting-power (voter principal))
+    (default-to u0 (map-get? balances voter))
+)
